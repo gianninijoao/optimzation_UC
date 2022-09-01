@@ -1,4 +1,4 @@
-module Optimzation_UC
+module OptimizationUC
 
 using JuMP
 using LinearAlgebra

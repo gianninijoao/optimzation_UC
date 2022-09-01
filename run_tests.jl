@@ -2,6 +2,6 @@ import Pkg
 Pkg.activate(".")
 Pkg.instantiate()
 
-include("src/Optimization_UC.jl")
+include("src/OptimizationUC.jl")
 
-Optimization_UC.main()
+OptimizationUC.main()
