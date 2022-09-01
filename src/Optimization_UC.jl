@@ -5,8 +5,10 @@ using LinearAlgebra
 using HiGHS
 using Plots
 
-include("model.jl")
 include("structs.jl")
+include("model.jl")
+include("main.jl")
+include("utils.jl")
 include("test_functions.jl")
 
 end

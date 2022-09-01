@@ -1,5 +1,4 @@
 function get_data()
-
     # Horizonte
     T              = 24
     demanda        = zeros(3, T)
@@ -38,10 +37,8 @@ function get_data()
 
     # Contingente N-1
     # [scenario, element]
-    # gen_contingency         = vcat(ones(G, G) - I, ones(L, G))
-    gen_contingency         = vcat(ones(G, G), ones(L, G))
-    # line_contingency        = vcat(ones(G, L), ones(L, L) - I)
-    line_contingency        = vcat(ones(G, L), ones(L, L))
+    gen_contingency         = vcat(ones(G, G) - I, ones(L, G))
+    line_contingency        = vcat(ones(G, L), ones(L, L) - I)
     reserve_up_cost         = custo ./ 2
     reserve_down_cost       = custo ./ 2
 
