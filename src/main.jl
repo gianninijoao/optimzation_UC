@@ -2,7 +2,7 @@ function main()
 
     L2B, grid_input = get_data()
 
-    cost, grid_output = run_solver(L2B, grid_input)#; uc::Bool = true, ramps::Bool = true, reserve::Bool = true, contingency::Bool = true)
+    cost, grid_output = run_solver(L2B, grid_input; uc::Bool = true, ramps::Bool = true, reserve::Bool = true, contingency::Bool = true)
 
     plot_results(grid_output)
     write_results(grid_input, grid_output)
