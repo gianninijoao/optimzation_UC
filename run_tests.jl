@@ -4,4 +4,6 @@ Pkg.instantiate()
 
 include("src/OptimizationUC.jl")
 
-OptimizationUC.main()
+L2B, grid_input = OptimizationUC.get_data()
+
+OptimizationUC.main(L2B, grid_input)
