@@ -47,9 +47,6 @@ function run_solver(L2B::Matrix{Int64}, grid::GridInput; use_uc::Bool = true, us
 
     @constraints(model, begin 
         # ---------- Primeiro estágio ----------
-        # Geração
-        [i = 1:grid.geradores, t = 1:grid.T], g[i,t] - reserve_down[i,t] >= grid.geracao_min[i] * u[i,t]         # Potência de cada gerador deve estar entre o mínimo e o máximo
-        [i = 1:grid.geradores, t = 1:grid.T], g[i,t] + reserve_up[i,t] <= grid.geracao_max[i] * u[i,t]
         # Fluxo
         [i = 1:grid.linhas, t = 1:grid.T], f[i,t] <= grid.fluxo_max[i]                                           # Fluxo de cada gerador deve estar entre -fluxo máximo e fluxo máximo
         [i = 1:grid.linhas, t = 1:grid.T], f[i,t] >= -grid.fluxo_max[i]
@@ -65,14 +62,31 @@ function run_solver(L2B::Matrix{Int64}, grid::GridInput; use_uc::Bool = true, us
         @constraints(model, begin
             [i = 1:grid.geradores], v[i,1] - w[i,1] == u[i,1] - u[i,grid.T]                                          # Implicitamente faz u[0] = u[T]
             [i = 1:grid.geradores, t = 2:grid.T], v[i,t] - w[i,t] == u[i,t] - u[i,t-1]                               # Determinando se o gerador está sendo ligado ou desligado
-        end)
-    end
+            end)
 
-    if use_reserve
-        @constraints(model, begin
-            [i = 1:grid.geradores, t = 1:grid.T], reserve_up[i,t] <= grid.ramp_up[i]
-            [i = 1:grid.geradores, t = 1:grid.T], reserve_down[i,t] <= grid.ramp_down[i]
-        end)
+        if use_reserve
+            @constraints(model, begin
+                [i = 1:grid.geradores, t = 1:grid.T], g[i,t] - reserve_down[i,t] >= grid.geracao_min[i] * u[i,t]         # Potência de cada gerador deve estar entre o mínimo e o máximo
+                [i = 1:grid.geradores, t = 1:grid.T], g[i,t] + reserve_up[i,t] <= grid.geracao_max[i] * u[i,t]
+            end)
+        else
+            @constraints(model, begin
+            [i = 1:grid.geradores, t = 1:grid.T], g[i,t] >= grid.geracao_min[i] * u[i,t]         # Potência de cada gerador deve estar entre o mínimo e o máximo
+            [i = 1:grid.geradores, t = 1:grid.T], g[i,t] <= grid.geracao_max[i] * u[i,t]
+            end)
+        end
+    else
+        if !use_reserve
+            @constraints(model, begin
+                [i = 1:grid.geradores, t = 1:grid.T], g[i,t] >= grid.geracao_min[i]         # Potência de cada gerador deve estar entre o mínimo e o máximo
+                [i = 1:grid.geradores, t = 1:grid.T], g[i,t] <= grid.geracao_max[i]
+            end)
+        else
+            @constraints(model, begin
+                [i = 1:grid.geradores, t = 1:grid.T], g[i,t] - reserve_down[i,t] >= grid.geracao_min[i]         # Potência de cada gerador deve estar entre o mínimo e o máximo
+                [i = 1:grid.geradores, t = 1:grid.T], g[i,t] + reserve_up[i,t] <= grid.geracao_max[i]
+            end)
+        end
     end
 
     if use_ramps
@@ -80,6 +94,13 @@ function run_solver(L2B::Matrix{Int64}, grid::GridInput; use_uc::Bool = true, us
             [i = 1:grid.geradores, t = 2:grid.T], g[i,t] - g[i,t-1] <= grid.ramp_up[i] * u[i,t-1] + grid.ramp_startup[i] * v[i,t]
             [i = 1:grid.geradores, t = 2:grid.T], g[i,t-1] - g[i,t] <= grid.ramp_down[i] * u[i,t] + grid.ramp_shutdown[i] * w[i,t]
         end)
+
+        if use_reserve
+            @constraints(model, begin
+            [i = 1:grid.geradores, t = 1:grid.T], reserve_up[i,t] <= grid.ramp_up[i]
+            [i = 1:grid.geradores, t = 1:grid.T], reserve_down[i,t] <= grid.ramp_down[i]
+            end)
+        end
     end
 
     if use_contingency
