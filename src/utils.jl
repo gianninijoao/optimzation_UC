@@ -41,9 +41,19 @@ function get_data()
     line_contingency        = vcat(ones(G, L), ones(L, L) - I)
     reserve_up_cost         = custo ./ 2
     reserve_down_cost       = custo ./ 2
+    reserve_up_lim          = geracao_max ./ 2
+    reserve_down_lim        = geracao_max ./ 2
+
+    # Options
+    use_uc = true
+    use_ramps = true
+    use_reserve = true
+    use_contingency = true
 
     # Struct
-    return L2B, GridInput(custo, custo_startup, custo_shutdown, custo_deficit, custo_deficit2, custo_curtailment, custo_curtailment2, demanda, Γ, fluxo_max, geracao_min, geracao_max, ramp_up, ramp_down, ramp_startup, ramp_shutdown, gen_contingency, line_contingency, reserve_up_cost, reserve_down_cost, G, L, T)
+    input = GridInput(custo, custo_startup, custo_shutdown, custo_deficit, custo_deficit2, custo_curtailment, custo_curtailment2, demanda, Γ, fluxo_max, geracao_min, geracao_max, ramp_up, ramp_down, ramp_startup, ramp_shutdown, gen_contingency, line_contingency, reserve_up_cost, reserve_down_cost, reserve_up_lim, reserve_down_lim, G, L, T)
+    options = GridOptions(use_uc, use_ramps, use_reserve, use_contingency)
+    return L2B, input, options
 
 end
 
@@ -61,15 +71,15 @@ function plot_results(out::GridOutput)
     savefig(fig,  joinpath(out_path, "fluxo.png"))
 
     # Plot geração
-    fig = areaplot(out.g', label=["Usina 1" "Usina 2" "Déficit"], title="Geração")
+    fig = areaplot(out.g', label=["Usina 1" "Usina 2" "Usina 3"], title="Geração")
     savefig(fig,  joinpath(out_path, "ger.png"))
 
     # Plot reserva up
-    fig = plot(out.r_up', label=["Usina 1" "Usina 2" "Déficit"], title="Reserva UP")
+    fig = plot(out.r_up', label=["Usina 1" "Usina 2" "Usina 3"], title="Reserva UP")
     savefig(fig,  joinpath(out_path, "reserve_up.png"))
 
     # Plot reserva down
-    fig = plot(out.r_down', label=["Usina 1" "Usina 2" "Déficit"], title="Reserva DOWN")
+    fig = plot(out.r_down', label=["Usina 1" "Usina 2" "Usina 3"], title="Reserva DOWN")
     savefig(fig,  joinpath(out_path, "reserve_down.png"))
 
     nothing
@@ -83,7 +93,7 @@ function write_results(in::GridInput, out::GridOutput)
     S = in.geradores + in.linhas
 
     # Geração
-    header = ["Etapa", "Cenário", "Usina 1", "Usina 2", "Déficit"]
+    header = ["Etapa", "Cenário", "Usina 1", "Usina 2", "Usina 3"]
     open(joinpath(out_path, "ger.csv"), "w") do io
         for i in 1:length(header)
             write(io, "$(header[i]), ")

@@ -1,8 +1,5 @@
-function main()
-
-    L2B, grid_input = get_data()
-
-    cost, grid_output = run_solver(L2B, grid_input)#; uc::Bool = true, ramps::Bool = true, reserve::Bool = true, contingency::Bool = true)
+function main(L2B::Matrix{Fl}, grid_input::Gi, grid_options::Go) where {Fl, Gi, Go}
+    cost, grid_output = run_solver(L2B, grid_input, grid_options)
 
     plot_results(grid_output)
     write_results(grid_input, grid_output)

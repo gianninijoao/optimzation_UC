@@ -26,10 +26,19 @@ mutable struct GridInput
     l_cont::Array{Float64,2}
     c_r_up::Vector{Float64}
     c_r_down::Vector{Float64}
+    reserve_up_lim::Vector{Float64}
+    reserve_down_lim::Vector{Float64}
     # Conjuntos
     geradores::Int64
     linhas::Int64
     T::Int64
+end
+
+mutable struct GridOptions
+    use_uc::Bool
+    use_ramps::Bool
+    use_reserve::Bool
+    use_contingency::Bool
 end
 
 mutable struct GridOutput
